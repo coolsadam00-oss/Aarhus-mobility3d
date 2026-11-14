@@ -1,0 +1,47 @@
+# NetAScore settings for Aarhus Kommune, Denmark
+# Format: NetAScore settings v1.2 (https://github.com/plus-mobilitylab/netascore/blob/main/settings.md)
+# Put this file, profile_bike.yml and profile_walk.yml (from the NetAScore repo's examples/ folder)
+# into the "data" directory next to docker-compose.yml, then run:
+#   docker compose run netascore data/settings_aarhus.yml
+version: 1.2
+
+global:
+  case_id: aarhus
+  target_srid: 25832          # ETRS89 / UTM zone 32N (Danish national standard, metric)
+
+database:
+  host: netascore-db
+  port: 5432
+  dbname: postgres
+  username: postgres
+  password: postgres
+
+import:
+  type: osm
+  place_name: Aarhus Kommune
+  admin_level: 7              # Danish municipalities are OSM admin_level 7
+  interactive: False
+  buffer: 1000
+  on_existing: delete
+  # Alternative: restrict to the city centre only
+  # bbox: 56.115,10.120,56.205,10.255
+
+optional:
+  # Highly recommended for correct gradient indicators.
+  # Danish Height Model (DHM/Terræn) GeoTIFF from Dataforsyningen, resampled to e.g. 10 m.
+  # Remove this block if you don't have a DEM (gradient will then be missing).
+  dem:
+    filename: aarhus_dhm_10m.tif
+    srid: 25832
+
+profiles:
+  - profile_name: bike
+    filename: profile_bike.yml
+    filter_access_bike: True
+  - profile_name: walk
+    filename: profile_walk.yml
+    filter_access_walk: True
+
+export:
+  type: geopackage
+  filename: netascore_aarhus.gpkg

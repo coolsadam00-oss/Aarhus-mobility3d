@@ -1,0 +1,67 @@
+{
+  "format": "am3d-citypack",
+  "version": 1,
+  "id": "starter-aarhus-8000",
+  "name": "Aarhus 8000 – offline starter (GeoDanmark 2016)",
+  "source": "geodanmark",
+  "bbox": [
+    10.177555109301087,
+    56.140300932633146,
+    10.21497770561714,
+    56.17073788324641
+  ],
+  "created": "2026-11-14T14:04:35.893Z",
+  "osmBase": null,
+  "builtin": true,
+  "attribution": [
+    "Contains data from GeoDanmark (Styrelsen for Dataforsyning og Infrastruktur), FOT 2016",
+    "Converted from the CityPulse 3D Map project (MIT licence, © 2016 EU FP7 CityPulse Project)"
+  ],
+  "description": "Real building footprints with surveyed roof heights, road and path centrelines, surveyed trees and ponds for central Aarhus (postcode 8000), plus a 5 m terrain model derived from surveyed road and tree elevations. Data is from 2016: newer buildings (e.g. parts of Aarhus Ø) are missing. Download an OpenStreetMap city pack for current data with names, building types and addresses.",
+  "log": [
+    {
+      "step": "build-starter",
+      "input": "CityPulse-3D-Map/3dmap-master/data/kml/8k",
+      "ms": 866,
+      "samples": 99211
+    }
+  ],
+  "layers": {
+    "buildings": {
+      "file": "buildings.json",
+      "count": 7032,
+      "bytes": 5572417
+    },
+    "roads": {
+      "file": "roads.json",
+      "count": 3807,
+      "bytes": 1623258
+    },
+    "water": {
+      "file": "water.json",
+      "count": 6,
+      "bytes": 6403
+    },
+    "trees": {
+      "file": "trees.json",
+      "count": 5251,
+      "bytes": 965011
+    }
+  },
+  "dem": {
+    "file": "dem.bin",
+    "confFile": "dem_conf.bin",
+    "bbox": [
+      10.175141282483702,
+      56.13894470641325,
+      10.217463712681845,
+      56.17208505175629
+    ],
+    "nx": 527,
+    "ny": 739,
+    "res": 5,
+    "format": "int16-dm",
+    "note": "DVR90 heights interpolated from GeoDanmark road and tree elevations"
+  },
+  "totalBytes": 9335448
+}

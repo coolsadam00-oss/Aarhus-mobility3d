@@ -1,0 +1,86 @@
+{
+  "name": "aarhus-mobility-3d",
+  "productName": "Aarhus Mobility 3D",
+  "version": "2.1.0",
+  "description": "Realistic 3D desktop simulation of Aarhus, Denmark: NetAScore walkability/bikeability, building & street information, first-person walking, cycling, driving and flying.",
+  "main": "electron/main.js",
+  "author": "Aarhus Mobility 3D",
+  "license": "MIT",
+  "scripts": {
+    "build": "node build.mjs",
+    "start": "node build.mjs && electron .",
+    "dist": "node build.mjs && electron-builder --win portable --x64",
+    "dist:installer": "node build.mjs && electron-builder --win nsis --x64",
+    "convert": "cross-env ELECTRON_RUN_AS_NODE=1 electron scripts/convert-netascore.js",
+    "fetch-osm": "cross-env ELECTRON_RUN_AS_NODE=1 electron scripts/fetch-osm.js",
+    "build-starter": "node scripts/build-starter.js",
+    "test": "cross-env ELECTRON_RUN_AS_NODE=1 electron test/smoke.js && cross-env ELECTRON_RUN_AS_NODE=1 electron test/unit-data.js && node test/unit-render.mjs"
+  },
+  "dependencies": {
+    "proj4": "^2.23.0"
+  },
+  "devDependencies": {
+    "cross-env": "^10.1.0",
+    "earcut": "^3.2.4",
+    "electron": "^45.3.2",
+    "electron-builder": "^26.18.0",
+    "esbuild": "^0.28.2",
+    "maplibre-gl": "^5.24.1",
+    "three": "^0.187.0",
+    "three-mesh-bvh": "^0.9.18"
+  },
+  "build": {
+    "appId": "dk.aarhus.mobility3d",
+    "productName": "Aarhus Mobility 3D",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "electron/**/*",
+      "shared/**/*",
+      "renderer/index.html",
+      "renderer/styles.css",
+      "renderer/dist/**/*",
+      "renderer/vendor/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "data",
+        "to": "data",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "asar": true,
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "portable": {
+      "artifactName": "AarhusMobility3D-${version}-portable.exe"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "AarhusMobility3D-${version}-setup.exe"
+    }
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

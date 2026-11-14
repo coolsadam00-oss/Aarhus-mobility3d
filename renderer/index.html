@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self';
+                 script-src 'self';
+                 style-src 'self' 'unsafe-inline';
+                 img-src 'self' data: blob: https: am3d:;
+                 font-src 'self' data:;
+                 connect-src 'self' https: data: blob: am3d:;
+                 worker-src 'self' blob:;
+                 child-src blob:;" />
+  <title>Aarhus Mobility 3D</title>
+  <link rel="stylesheet" href="vendor/maplibre-gl.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header id="topbar">
+    <div class="brand"><div class="logo" aria-hidden="true"></div><div><h1>Aarhus Mobility 3D</h1><p class="sub">NetAScore · buildings · streets · 3D city</p></div></div>
+    <div class="segmented views" role="tablist" aria-label="View">
+      <button class="seg active" data-view="map" role="tab" title="2.5D analysis map (Ctrl+1)">🗺️ Map</button>
+      <button class="seg" data-view="explore" role="tab" title="Walk, cycle, drive or fly through Aarhus in 3D (Ctrl+2)">🎮 3D Explore</button>
+    </div>
+    <div id="search-wrap">
+      <input id="search" type="search" autocomplete="off" spellcheck="false" placeholder="Search streets, addresses, buildings, places… (Ctrl+F)" />
+      <div id="search-results" class="search-results hidden" role="listbox"></div>
+    </div>
+    <div class="top-actions">
+      <button id="btn-data" class="btn ghost" title="City data, downloads and activity (Ctrl+D)">📦 Data</button>
+      <button id="btn-settings" class="icon-btn lg" title="Settings (Ctrl+,)">⚙️</button>
+      <button id="btn-help" class="icon-btn lg" title="Controls & help (F1)">❔</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="view-map" class="view active">
+      <div id="map" aria-label="Map of Aarhus"></div>
+      <section id="controls" class="card">
+        <div class="segmented" role="tablist" aria-label="Score">
+          <button id="mode-bike" class="seg active" data-mode="bike">🚲 Bikeability</button>
+          <button id="mode-walk" class="seg" data-mode="walk">🚶 Walkability</button>
+        </div>
+        <div class="legend">
+          <div class="legend-bar"></div>
+          <div class="legend-labels"><span>0 · poor</span><span>0.5</span><span>1 · excellent</span></div>
+          <div class="legend-null"><i></i> not scored / no access</div>
+        </div>
+        <label class="row"><span>Minimum score <b id="min-score-val">0.00</b></span><input id="min-score" type="range" min="0" max="1" step="0.05" value="0" /></label>
+        <label class="check"><input id="hide-unscored" type="checkbox" /> Hide unscored segments</label>
+
+        <details class="group" open>
+          <summary>Map layers</summary>
+          <div class="seg3 segmented small" id="basemap-switch">
+            <button class="seg" data-basemap="satellite">🛰️ Satellite</button>
+            <button class="seg" data-basemap="hybrid">🗺️ Hybrid</button>
+            <button class="seg" data-basemap="streets">🧭 Streets</button>
+          </div>
+          <label class="check"><input id="tg-buildings" type="checkbox" checked /> 3D buildings</label>
+          <label class="row compact"><span>Building colours</span>
+            <select id="sel-bcolors"><option value="realistic">Realistic</option><option value="type">By type (what is what)</option><option value="height">By height</option><option value="source">By height source</option></select>
+          </label>
+          <label class="check"><input id="tg-netascore" type="checkbox" checked /> NetAScore street colours</label>
+          <label class="check"><input id="tg-pois" type="checkbox" checked /> Places (shops, cafés, stations…)</label>
+          <label class="check"><input id="tg-labels" type="checkbox" checked /> Building type labels</label>
+          <label class="check"><input id="tg-pins" type="checkbox" checked /> Feedback pins</label>
+          <label class="check"><input id="tg-hillshade" type="checkbox" /> Hillshade</label>
+          <label class="row"><span>Terrain exaggeration <b id="exag-val">1.3×</b></span><input id="exag" type="range" min="0" max="5" step="0.1" value="1.3" /></label>
+          <div class="btn-row">
+            <button id="btn-home" class="btn ghost" title="Fly to Aarhus C">⌂ Aarhus C</button>
+            <button id="btn-topdown" class="btn ghost" title="Toggle 2D / 3D view">⇕ 2D / 3D</button>
+            <button id="btn-explore-here" class="btn" title="Open the 3D explorer at the map centre">🎮 Explore here</button>
+          </div>
+        </details>
+
+        <details class="group" id="type-legend-group">
+          <summary>What is what (building types)</summary>
+          <div id="type-legend" class="type-legend"></div>
+        </details>
+
+        <details class="group" open>
+          <summary>NetAScore data</summary>
+          <div id="dataset-info" class="dataset-info">Loading…</div>
+          <div class="btn-row"><button id="btn-open" class="btn">📂 Import .geojson / .gpkg</button></div>
+          <div class="btn-row">
+            <button id="btn-osm" class="btn ghost" title="Download Aarhus streets from OpenStreetMap and compute approximate scores">🌐 Fetch OSM (approx.)</button>
+            <button id="btn-reset" class="btn ghost" title="Return to the bundled dataset">↺ Bundled</button>
+          </div>
+        </details>
+
+        <details class="group">
+          <summary>Feedback <span id="fb-count" class="pill">0</span></summary>
+          <div class="btn-row">
+            <button id="btn-export-csv" class="btn ghost">⬇ CSV</button>
+            <button id="btn-export-geojson" class="btn ghost">⬇ GeoJSON</button>
+          </div>
+          <ul id="fb-recent" class="fb-recent"></ul>
+        </details>
+      </section>
+      <div id="demo-banner" class="banner hidden"></div>
+    </section>
+
+    <section id="view-explore" class="view">
+      <div id="explore-root"></div>
+    </section>
+  </main>
+
+  <aside id="panel" class="panel hidden" aria-live="polite">
+    <button id="panel-close" class="icon-btn" aria-label="Close panel">✕</button>
+    <div id="panel-body"></div>
+  </aside>
+
+  <div id="modal-root"></div>
+  <div id="hover-tip" class="hover-tip hidden"></div>
+  <div id="toast" class="toast hidden"></div>
+  <div id="loading" class="loading"><div class="spinner"></div><div id="loading-msg">Starting…</div><div id="loading-sub" class="muted"></div></div>
+
+  <script src="vendor/maplibre-gl.js"></script>
+  <script src="dist/app.js"></script>
+</body>
+</html>
